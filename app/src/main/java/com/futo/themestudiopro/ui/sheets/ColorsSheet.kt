@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.futo.themestudiopro.data.*
@@ -101,7 +102,7 @@ private fun SolidPresetCard(preset: SolidPreset, onClick: () -> Unit) {
             Text(
                 preset.name,
                 style = MaterialTheme.typography.labelSmall,
-                color = ColorUtils.contrastText(bgColor),
+                color = Color(ColorUtils.contrastText(bgColor.toArgb())),
                 maxLines = 2,
             )
         }
@@ -137,7 +138,7 @@ private fun GradientPresetCard(preset: GradientPreset, onClick: () -> Unit) {
             Text(
                 preset.name,
                 style = MaterialTheme.typography.labelSmall,
-                color = ColorUtils.contrastText(bg),
+                color = Color(ColorUtils.contrastText(bg.toArgb())),
                 maxLines = 2,
             )
         }
