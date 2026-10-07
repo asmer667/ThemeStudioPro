@@ -411,7 +411,7 @@ object ShapesGenerator {
         for (i in 0 until steps) {
             val t = i.toDouble() / steps
             val angle = 2.0 * Math.PI * totalLoops * t
-            val radius = r * t
+            val radius: Float = (r.toDouble() * t).toFloat()
             val x = cx + radius * cos(angle).toFloat()
             val y = cy + radius * sin(angle).toFloat()
             if (i == 0) p.moveTo(x, y) else p.lineTo(x, y)

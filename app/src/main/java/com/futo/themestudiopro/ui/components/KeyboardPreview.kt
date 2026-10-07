@@ -33,12 +33,12 @@ fun KeyboardPreview(
     theme: ThemeData,
     scale: Float = 1.4f,
 ) {
-    val kbSurface = remember(theme.keyboardSurface) { ColorUtils.parseColor(theme.keyboardSurface) }
-    val kbContainer = remember(theme.keyboardContainer) { ColorUtils.parseColor(theme.keyboardContainer) }
-    val onKb = remember(theme.onKeyboardContainer) { ColorUtils.parseColor(theme.onKeyboardContainer) }
-    val primary = remember(theme.primary) { ColorUtils.parseColor(theme.primary) }
-    val onPrimary = remember(theme.onPrimary) { ColorUtils.parseColor(theme.onPrimary) }
-    val outline = remember(theme.outline) { ColorUtils.parseColor(theme.outline) }
+    val kbSurface = remember(theme.keyboardSurface) { Color(ColorUtils.parseColor(theme.keyboardSurface)) }
+    val kbContainer = remember(theme.keyboardContainer) { Color(ColorUtils.parseColor(theme.keyboardContainer)) }
+    val onKb = remember(theme.onKeyboardContainer) { Color(ColorUtils.parseColor(theme.onKeyboardContainer)) }
+    val primary = remember(theme.primary) { Color(ColorUtils.parseColor(theme.primary)) }
+    val onPrimary = remember(theme.onPrimary) { Color(ColorUtils.parseColor(theme.onPrimary)) }
+    val outline = remember(theme.outline) { Color(ColorUtils.parseColor(theme.outline)) }
 
     val keyW = 34.dp * scale
     val keyH = 44.dp * scale
@@ -167,7 +167,7 @@ private fun Key(
     theme: ThemeData,
     fontSize: Int = 14,
 ) {
-    val outline = remember(theme.outline) { ColorUtils.parseColor(theme.outline) }
+    val outline = remember(theme.outline) { Color(ColorUtils.parseColor(theme.outline)) }
     val bgArgb = bgColor.toArgb()
 
     val shapeBitmap = theme.shapeId?.let { shapeId ->

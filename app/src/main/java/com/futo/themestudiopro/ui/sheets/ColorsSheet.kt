@@ -60,7 +60,7 @@ fun ColorsSheet() {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(current, key = { it.name }) { item ->
+            items(current, key = { it.toString() }) { item ->
                 when (item) {
                     is SolidPreset -> SolidPresetCard(item) {
                         applySolidPreset(item)
@@ -77,8 +77,8 @@ fun ColorsSheet() {
 
 @Composable
 private fun SolidPresetCard(preset: SolidPreset, onClick: () -> Unit) {
-    val accentColor = remember(preset.accent) { ColorUtils.parseColor(preset.accent) }
-    val bgColor = remember(preset.bg) { ColorUtils.parseColor(preset.bg) }
+    val accentColor = remember(preset.accent) { Color(ColorUtils.parseColor(preset.accent)) }
+    val bgColor = remember(preset.bg) { Color(ColorUtils.parseColor(preset.bg)) }
 
     Card(
         modifier = Modifier
@@ -110,9 +110,9 @@ private fun SolidPresetCard(preset: SolidPreset, onClick: () -> Unit) {
 
 @Composable
 private fun GradientPresetCard(preset: GradientPreset, onClick: () -> Unit) {
-    val c1 = remember(preset.color1) { ColorUtils.parseColor(preset.color1) }
-    val c2 = remember(preset.color2) { ColorUtils.parseColor(preset.color2) }
-    val bg = remember(preset.bg) { ColorUtils.parseColor(preset.bg) }
+    val c1 = remember(preset.color1) { Color(ColorUtils.parseColor(preset.color1)) }
+    val c2 = remember(preset.color2) { Color(ColorUtils.parseColor(preset.color2)) }
+    val bg = remember(preset.bg) { Color(ColorUtils.parseColor(preset.bg)) }
 
     Card(
         modifier = Modifier
