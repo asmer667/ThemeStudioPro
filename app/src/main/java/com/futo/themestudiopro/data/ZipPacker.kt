@@ -17,7 +17,7 @@ import java.util.zip.ZipOutputStream
  *   theme.txt                  ← الإعدادات
  *   <font>.ttf                 ← الخط
  *   background.png             ← صورة الخلفية
- *   Shapes/*.png               ← الأشكال
+ *   Shapes-*.png               ← الأشكال
  *   Key-*.png                  ← صور الأزرار
  *   Icon-*.png                 ← الأيقونات
  *   FUTOKeyboardTheme_Version  ← ملف الإصدار
