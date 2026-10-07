@@ -9,14 +9,14 @@ import com.futo.themestudiopro.data.shapes.ShapeParams
 import com.futo.themestudiopro.data.shapes.ShadeTriple
 import com.futo.themestudiopro.data.renderers.drawGlassCircle
 import com.futo.themestudiopro.data.renderers.drawGlassRoundedSquare
-import com.futo.themestudiopro.data.renderers.RenderUtils.drawGlassCircle
-import com.futo.themestudiopro.data.renderers.RenderUtils.drawGlassRoundedSquare
-import com.futo.themestudiopro.data.renderers.RenderUtils.drawSoftShadow
-import com.futo.themestudiopro.data.renderers.RenderUtils.drawGloss
-import com.futo.themestudiopro.data.renderers.RenderUtils.drawDepthGradient
-import com.futo.themestudiopro.data.renderers.RenderUtils.roundedRectPath
-import com.futo.themestudiopro.data.renderers.RenderUtils.polygonPath
-import com.futo.themestudiopro.data.renderers.RenderUtils.starPath
+import com.futo.themestudiopro.data.renderers.starPath
+import com.futo.themestudiopro.data.renderers.polygonPath
+import com.futo.themestudiopro.data.renderers.roundedRectPath
+import com.futo.themestudiopro.data.renderers.drawDepthGradient
+import com.futo.themestudiopro.data.renderers.drawGloss
+import com.futo.themestudiopro.data.renderers.drawSoftShadow
+import com.futo.themestudiopro.data.renderers.drawGlassRoundedSquare
+import com.futo.themestudiopro.data.renderers.drawGlassCircle
 
 /**
  * المحرّك الموحّد لرسم الأشكال.
