@@ -101,7 +101,7 @@ private fun SolidPresetCard(preset: SolidPreset, onClick: () -> Unit) {
             Text(
                 preset.name,
                 style = MaterialTheme.typography.labelSmall,
-                color = ColorUtils.contrastText(bgColor),
+                color = Color(ColorUtils.contrastText(bgColor)),
                 maxLines = 2,
             )
         }
@@ -137,7 +137,7 @@ private fun GradientPresetCard(preset: GradientPreset, onClick: () -> Unit) {
             Text(
                 preset.name,
                 style = MaterialTheme.typography.labelSmall,
-                color = ColorUtils.contrastText(bg),
+                color = Color(ColorUtils.contrastText(bg)),
                 maxLines = 2,
             )
         }
