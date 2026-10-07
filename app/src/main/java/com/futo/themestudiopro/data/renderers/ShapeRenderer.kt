@@ -7,8 +7,16 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import com.futo.themestudiopro.data.shapes.RenderStyle
 import com.futo.themestudiopro.data.shapes.ShapeParams
 import com.futo.themestudiopro.data.shapes.ShadeTriple
+import com.futo.themestudiopro.data.renderers.drawGlassCircle
+import com.futo.themestudiopro.data.renderers.drawGlassRoundedSquare
 import com.futo.themestudiopro.data.renderers.RenderUtils.drawGlassCircle
 import com.futo.themestudiopro.data.renderers.RenderUtils.drawGlassRoundedSquare
+import com.futo.themestudiopro.data.renderers.RenderUtils.drawSoftShadow
+import com.futo.themestudiopro.data.renderers.RenderUtils.drawGloss
+import com.futo.themestudiopro.data.renderers.RenderUtils.drawDepthGradient
+import com.futo.themestudiopro.data.renderers.RenderUtils.roundedRectPath
+import com.futo.themestudiopro.data.renderers.RenderUtils.polygonPath
+import com.futo.themestudiopro.data.renderers.RenderUtils.starPath
 
 /**
  * المحرّك الموحّد لرسم الأشكال.
@@ -52,8 +60,8 @@ object ShapeRenderer {
         center: Offset, radius: Float, triple: ShadeTriple, variant: Int, params: ShapeParams,
     ) {
         when (variant % 4) {
-            0 -> RenderUtils.drawGlassCircle(center, radius, triple.dark, triple.base, triple.light, params.gloss)
-            1 -> RenderUtils.drawGlassRoundedSquare(
+            0 -> drawGlassCircle(center, radius, triple.dark, triple.base, triple.light, params.gloss)
+            1 -> drawGlassRoundedSquare(
                 topLeft = Offset(center.x - radius, center.y - radius),
                 size = Size(radius * 2f, radius * 2f),
                 cornerRadius = radius * params.cornerRadius * 2f,
@@ -63,7 +71,7 @@ object ShapeRenderer {
                 // مستطيل زجاجي أفقي
                 val w = radius * 1.8f
                 val h = radius * 1.0f
-                RenderUtils.drawGlassRoundedSquare(
+                drawGlassRoundedSquare(
                     topLeft = Offset(center.x - w / 2f, center.y - h / 2f),
                     size = Size(w, h),
                     cornerRadius = h * 0.25f,
@@ -72,7 +80,7 @@ object ShapeRenderer {
             }
             3 -> {
                 // بيضة زجاجية
-                RenderUtils.drawGlassRoundedSquare(
+                drawGlassRoundedSquare(
                     topLeft = Offset(center.x - radius, center.y - radius * 1.2f),
                     size = Size(radius * 2f, radius * 2.4f),
                     cornerRadius = radius,
@@ -87,12 +95,12 @@ object ShapeRenderer {
         center: Offset, radius: Float, triple: ShadeTriple, variant: Int, params: ShapeParams,
     ) {
         val path = when (variant % 6) {
-            0 -> RenderUtils.polygonPath(center, radius, 3)
-            1 -> RenderUtils.polygonPath(center, radius, 4, 45f)
-            2 -> RenderUtils.polygonPath(center, radius, 5)
-            3 -> RenderUtils.polygonPath(center, radius, 6)
-            4 -> RenderUtils.polygonPath(center, radius, 8)
-            else -> RenderUtils.polygonPath(center, radius, 12)
+            0 -> polygonPath(center, radius, 3)
+            1 -> polygonPath(center, radius, 4, 45f)
+            2 -> polygonPath(center, radius, 5)
+            3 -> polygonPath(center, radius, 6)
+            4 -> polygonPath(center, radius, 8)
+            else -> polygonPath(center, radius, 12)
         }
         drawPath(path, color = triple.base)
     }
@@ -106,12 +114,12 @@ object ShapeRenderer {
                 // مكعب بسيط
                 val w = radius * 1.6f
                 val h = radius * 1.6f
-                val top = RenderUtils.roundedRectPath(
+                val top = roundedRectPath(
                     Offset(center.x - w / 2f, center.y - h / 2f),
                     Size(w, h * 0.6f),
                     radius * 0.15f,
                 )
-                val side = RenderUtils.roundedRectPath(
+                val side = roundedRectPath(
                     Offset(center.x - w / 2f, center.y - h * 0.1f),
                     Size(w, h * 0.6f),
                     radius * 0.15f,
@@ -121,19 +129,19 @@ object ShapeRenderer {
             }
             1 -> {
                 // هرم
-                val path = RenderUtils.polygonPath(center, radius, 3)
+                val path = polygonPath(center, radius, 3)
                 drawPath(path, color = triple.base)
-                drawPath(RenderUtils.polygonPath(center, radius * 0.6f, 3), color = triple.light)
+                drawPath(polygonPath(center, radius * 0.6f, 3), color = triple.light)
             }
             2 -> {
                 // كرة زجاجية
-                RenderUtils.drawGlassCircle(center, radius, triple.dark, triple.base, triple.light, 0.6f)
+                drawGlassCircle(center, radius, triple.dark, triple.base, triple.light, 0.6f)
             }
             else -> {
                 // معين مجسّم
-                val path = RenderUtils.polygonPath(center, radius, 4)
+                val path = polygonPath(center, radius, 4)
                 drawPath(path, color = triple.base)
-                drawPath(RenderUtils.polygonPath(center, radius * 0.5f, 4), color = triple.light)
+                drawPath(polygonPath(center, radius * 0.5f, 4), color = triple.light)
             }
         }
     }
@@ -252,7 +260,7 @@ object ShapeRenderer {
             4 -> {
                 // نجمة
                 drawPath(
-                    RenderUtils.starPath(center, radius, radius * 0.45f, 5),
+                    starPath(center, radius, radius * 0.45f, 5),
                     color = triple.base,
                 )
             }
@@ -275,7 +283,7 @@ object ShapeRenderer {
             6 -> {
                 // مربع مدوّر
                 drawPath(
-                    RenderUtils.roundedRectPath(
+                    roundedRectPath(
                         Offset(center.x - radius * 0.6f, center.y - radius * 0.6f),
                         Size(radius * 1.2f, radius * 1.2f),
                         radius * 0.25f,
@@ -286,7 +294,7 @@ object ShapeRenderer {
             else -> {
                 // جرس
                 drawPath(
-                    RenderUtils.polygonPath(center, radius * 0.7f, 5),
+                    polygonPath(center, radius * 0.7f, 5),
                     color = triple.base,
                 )
             }
@@ -299,7 +307,7 @@ object ShapeRenderer {
     ) {
         val w = radius * 2f
         val h = radius * 1.4f
-        val path = RenderUtils.roundedRectPath(
+        val path = roundedRectPath(
             Offset(center.x - w / 2f, center.y - h / 2f),
             Size(w, h),
             radius * 0.3f,
@@ -318,7 +326,7 @@ object ShapeRenderer {
     ) {
         val w = radius * 2f
         val h = radius * 1.3f
-        val path = RenderUtils.roundedRectPath(
+        val path = roundedRectPath(
             Offset(center.x - w / 2f, center.y - h / 2f),
             Size(w, h),
             radius * 0.2f,
@@ -402,7 +410,7 @@ object ShapeRenderer {
             }
             2 -> {
                 // نجمة زهرة
-                drawPath(RenderUtils.starPath(center, radius, radius * 0.5f, 6), color = triple.base)
+                drawPath(starPath(center, radius, radius * 0.5f, 6), color = triple.base)
             }
             else -> {
                 // فاكهة (تفاحة)
@@ -423,7 +431,7 @@ object ShapeRenderer {
     ) {
         val size = radius * 1.6f
         val topLeft = Offset(center.x - size / 2f, center.y - size / 2f)
-        val path = RenderUtils.roundedRectPath(topLeft, Size(size, size), radius * 0.15f)
+        val path = roundedRectPath(topLeft, Size(size, size), radius * 0.15f)
         drawPath(path, color = triple.base.copy(alpha = 0.9f))
 
         when (variant % 4) {
@@ -484,7 +492,7 @@ object ShapeRenderer {
     ) {
         val w = radius * 2f
         val h = radius * 1f
-        val path = RenderUtils.roundedRectPath(
+        val path = roundedRectPath(
             Offset(center.x - w / 2f, center.y - h / 2f),
             Size(w, h),
             h / 2f,
@@ -500,7 +508,7 @@ object ShapeRenderer {
         center: Offset, radius: Float, triple: ShadeTriple, variant: Int, params: ShapeParams,
     ) {
         // نجمة ذهبية
-        val path = RenderUtils.starPath(center, radius, radius * 0.42f, 5)
+        val path = starPath(center, radius, radius * 0.42f, 5)
         drawPath(
             path,
             brush = androidx.compose.ui.graphics.Brush.linearGradient(
@@ -531,12 +539,12 @@ object ShapeRenderer {
     ) {
         // مكعبان متراكبان
         val offset = radius * 0.35f
-        val top = RenderUtils.roundedRectPath(
+        val top = roundedRectPath(
             Offset(center.x - radius * 0.7f + offset, center.y - radius * 0.7f),
             Size(radius * 1.4f, radius * 1.4f),
             radius * 0.15f,
         )
-        val bottom = RenderUtils.roundedRectPath(
+        val bottom = roundedRectPath(
             Offset(center.x - radius * 0.7f - offset, center.y - radius * 0.7f + offset),
             Size(radius * 1.4f, radius * 1.4f),
             radius * 0.15f,
@@ -550,10 +558,10 @@ object ShapeRenderer {
         center: Offset, radius: Float, triple: ShadeTriple, variant: Int, params: ShapeParams,
     ) {
         when (variant % 4) {
-            0 -> drawPath(RenderUtils.starPath(center, radius, radius * 0.45f, 5), color = triple.base)
+            0 -> drawPath(starPath(center, radius, radius * 0.45f, 5), color = triple.base)
             1 -> drawCircle(color = triple.base, radius = radius * 0.9f, center = center)
-            2 -> drawPath(RenderUtils.polygonPath(center, radius, 6), color = triple.base)
-            else -> drawPath(RenderUtils.polygonPath(center, radius, 3), color = triple.base)
+            2 -> drawPath(polygonPath(center, radius, 6), color = triple.base)
+            else -> drawPath(polygonPath(center, radius, 3), color = triple.base)
         }
     }
 }
