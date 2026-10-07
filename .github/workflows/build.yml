@@ -3,8 +3,6 @@ name: Build Theme Studio Pro
 on:
   push:
     branches: [ main, dev ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -20,16 +18,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 'latest'
-          accept-android-sdk-licenses: true
-          log-accepted-android-sdk-licenses: false
-
-      - name: Install required SDK packages
+      - name: Configure Android SDK
         run: |
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+          echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+          echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Accept licenses and install SDK
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
@@ -44,4 +42,3 @@ jobs:
           name: theme-studio-pro-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: warn
-          retention-days: 14
