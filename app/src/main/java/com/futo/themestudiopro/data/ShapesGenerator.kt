@@ -309,8 +309,8 @@ object ShapesGenerator {
         paint.color = color
         val path = AndroidPath()
         path.moveTo(cx, cy - r)
-        path.quadraticBezierTo(cx + r, cy, cx, cy + r)
-        path.quadraticBezierTo(cx - r, cy, cx, cy - r)
+        path.quadTo(cx + r, cy, cx, cy + r)
+        path.quadTo(cx - r, cy, cx, cy - r)
         canvas.drawPath(path, paint)
     }
 

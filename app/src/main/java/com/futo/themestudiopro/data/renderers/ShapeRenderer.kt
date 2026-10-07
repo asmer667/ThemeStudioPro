@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import com.futo.themestudiopro.data.shapes.RenderStyle
 import com.futo.themestudiopro.data.shapes.ShapeParams
 import com.futo.themestudiopro.data.shapes.ShadeTriple
+import com.futo.themestudiopro.data.renderers.RenderUtils.drawGlassCircle
+import com.futo.themestudiopro.data.renderers.RenderUtils.drawGlassRoundedSquare
 
 /**
  * المحرّك الموحّد لرسم الأشكال.
