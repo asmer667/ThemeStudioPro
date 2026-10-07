@@ -1,184 +1,211 @@
 package com.futo.themestudiopro.ui.sheets
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.futo.themestudiopro.data.*
-import com.futo.themestudiopro.utils.ColorUtils
+import com.futo.themestudiopro.data.ColorCatalog
+import com.futo.themestudiopro.data.ColorImporter
+import com.futo.themestudiopro.data.GradientPreset
+import com.futo.themestudiopro.data.SolidPreset
+import com.futo.themestudiopro.data.ThemeState
 
 /**
- * تبويب الألوان — 700 لون جاهز.
+ * واجهة الألوان — قسمان مستقلان.
  */
 @Composable
 fun ColorsSheet() {
-    var tab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("داكن", "فاتح", "تدرّج")
+    var selectedTab by remember { mutableStateOf(ColorTarget.BACKGROUND) }
 
-    val current = when (tab) {
-        0 -> PresetColors.solidDark
-        1 -> PresetColors.solidLight
-        else -> PresetColors.gradientDark + PresetColors.gradientLight
-    }
-
-    Column(Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 12.dp),
+    ) {
         Text(
-            "🎨 الألوان (${current.size})",
+            text = "🎨 الألوان",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
-
-        TabRow(selectedTabIndex = tab) {
-            tabs.forEachIndexed { i, label ->
+        Text(
+            text = "${ColorCatalog.totalCount} لون جاهز — اختر قسمًا",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        )
+        Spacer(Modifier.height(12.dp))
+        TabRow(selectedTabIndex = selectedTab.ordinal) {
+            ColorTarget.entries.forEach { target ->
                 Tab(
-                    selected = tab == i,
-                    onClick = { tab = i },
-                    text = { Text(label) },
+                    selected = selectedTab == target,
+                    onClick = { selectedTab = target },
+                    text = {
+                        Text(
+                            text = "${target.emoji}  ${target.label}",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = if (selectedTab == target) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    },
                 )
             }
         }
-
-        Spacer(Modifier.height(8.dp))
-
+        Spacer(Modifier.height(12.dp))
+        ImportButton(target = selectedTab)
+        Spacer(Modifier.height(16.dp))
+        SectionTitle("الألوان الصلبة (${ColorCatalog.solidCount})")
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp),
-            contentPadding = PaddingValues(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            columns = GridCells.Fixed(7),
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth().height(240.dp),
         ) {
-            items(current, key = { it.toString() }) { item ->
-                when (item) {
-                    is SolidPreset -> SolidPresetCard(item) {
-                        applySolidPreset(item)
-                    }
-                    is GradientPreset -> GradientPresetCard(item) {
-                        applyGradientPreset(item)
-                    }
-                }
+            items(ColorCatalog.ALL_SOLID, key = { it.name }) { preset ->
+                SolidColorItem(preset = preset, onClick = { applySolid(preset, selectedTab) })
             }
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
+        SectionTitle("التدرجات (${ColorCatalog.gradientCount})")
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(6),
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth().height(240.dp),
+        ) {
+            items(ColorCatalog.ALL_GRADIENT, key = { it.name }) { preset ->
+                GradientColorItem(preset = preset, onClick = { applyGradient(preset, selectedTab) })
+            }
+        }
+        Spacer(Modifier.height(20.dp))
     }
 }
 
 @Composable
-private fun SolidPresetCard(preset: SolidPreset, onClick: () -> Unit) {
-    val accentColor = remember(preset.accent) { Color(ColorUtils.parseColor(preset.accent)) }
-    val bgColor = remember(preset.bg) { Color(ColorUtils.parseColor(preset.bg)) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-    ) {
-        Column(
-            Modifier.fillMaxSize().padding(8.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Box(
-                Modifier
-                    .size(24.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(accentColor)
-                    .border(1.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(6.dp)),
-            )
-            Text(
-                preset.name,
-                style = MaterialTheme.typography.labelSmall,
-                color = Color(ColorUtils.contrastText(bgColor.toArgb())),
-                maxLines = 2,
-            )
+private fun ImportButton(target: ColorTarget) {
+    val context = LocalContext.current
+    val picker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            val colors = ColorImporter.importFromUri(context, uri)
+            if (colors.isNotEmpty()) {
+                val firstColor = colors.first()
+                val theme = ThemeState.theme
+                val newTheme = when (target) {
+                    ColorTarget.BACKGROUND -> ColorCatalog.applyBackgroundColor(theme, firstColor)
+                    ColorTarget.BUTTON -> ColorCatalog.applyButtonColor(theme, firstColor)
+                }
+                ThemeState.replace(newTheme)
+            }
         }
+    }
+    FilledTonalButton(
+        onClick = { picker.launch(arrayOf("text/*", "application/json", "*/*")) },
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+    ) {
+        Text("📥 استيراد من الجهاز — ${target.label}", fontWeight = FontWeight.Medium)
     }
 }
 
-@Composable
-private fun GradientPresetCard(preset: GradientPreset, onClick: () -> Unit) {
-    val c1 = remember(preset.color1) { Color(ColorUtils.parseColor(preset.color1)) }
-    val c2 = remember(preset.color2) { Color(ColorUtils.parseColor(preset.color2)) }
-    val bg = remember(preset.bg) { Color(ColorUtils.parseColor(preset.bg)) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = bg),
-    ) {
-        Column(
-            Modifier.fillMaxSize().padding(8.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(20.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(
-                        androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(c1, c2))
-                    ),
-            )
-            Text(
-                preset.name,
-                style = MaterialTheme.typography.labelSmall,
-                color = Color(ColorUtils.contrastText(bg.toArgb())),
-                maxLines = 2,
-            )
-        }
+private fun applySolid(preset: SolidPreset, target: ColorTarget) {
+    val theme = ThemeState.theme
+    val newTheme = when (target) {
+        ColorTarget.BACKGROUND -> ColorCatalog.applyBackground(theme, preset)
+        ColorTarget.BUTTON -> ColorCatalog.applyButton(theme, preset)
     }
+    ThemeState.replace(newTheme)
 }
 
-private fun applySolidPreset(preset: SolidPreset) {
-    val t = ThemeState.theme
-    ThemeState.replace(
-        t.copy(
-            primary = preset.accent,
-            onPrimary = "#FFFFFFFF",
-            primaryContainer = preset.container,
+private fun applyGradient(preset: GradientPreset, target: ColorTarget) {
+    val theme = ThemeState.theme
+    val newTheme = when (target) {
+        ColorTarget.BACKGROUND -> theme.copy(
             background = preset.bg,
-            onBackground = "#FFFFFFFF",
-            surface = preset.bg,
-            surfaceVariant = preset.surface,
             keyboardSurface = preset.bg,
-            keyboardContainer = preset.surface,
-            keyboardContainerVariant = preset.container,
-            keyboardPress = preset.accent,
+            surface = preset.bg,
         )
-    )
-}
-
-private fun applyGradientPreset(preset: GradientPreset) {
-    val t = ThemeState.theme
-    ThemeState.replace(
-        t.copy(
+        ColorTarget.BUTTON -> theme.copy(
             primary = preset.color1,
-            onPrimary = "#FFFFFFFF",
-            primaryContainer = preset.color2,
-            background = preset.bg,
-            onBackground = "#FFFFFFFF",
-            surface = preset.bg,
-            surfaceVariant = preset.color1 + "22",
-            keyboardSurface = preset.bg,
-            keyboardContainer = preset.color1 + "22",
-            keyboardContainerVariant = preset.color2,
-            keyboardPress = preset.color1,
+            keyboardPress = preset.color2,
+            primaryContainer = preset.bg,
         )
+    }
+    ThemeState.replace(newTheme)
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
     )
+}
+
+@Composable
+private fun SolidColorItem(preset: SolidPreset, onClick: () -> Unit) {
+    val color = remember(preset.accent) { ColorCatalog.parseColor(preset.accent) }
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp))
+            .background(color)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+            .clickable { onClick() },
+    )
+}
+
+@Composable
+private fun GradientColorItem(preset: GradientPreset, onClick: () -> Unit) {
+    val c1 = remember(preset.color1) { ColorCatalog.parseColor(preset.color1) }
+    val c2 = remember(preset.color2) { ColorCatalog.parseColor(preset.color2) }
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Brush.linearGradient(listOf(c1, c2)))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+            .clickable { onClick() },
+    )
+}
+
+enum class ColorTarget(val emoji: String, val label: String) {
+    BACKGROUND("🎨", "خلف الأزرار"),
+    BUTTON("🖌️", "للأزرار"),
 }

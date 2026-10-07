@@ -87,6 +87,8 @@ data class ThemeData(
 
     // ═══════════ الخطوط ═══════════
     val fontName: String? = null,
+    val fontArabic: String? = null,
+    val fontEnglish: String? = null,
     val arabicFontName: String? = null,
     val englishFontName: String? = null,
 
@@ -100,6 +102,7 @@ data class ThemeData(
 
     // ═══════════ الصور ═══════════
     val backgroundImage: String? = null,
+    val keyImages: Map<String, String> = emptyMap(),
 
     // ═══════════ الوضع الليلي ═══════════
     val darkMode: Boolean = false,

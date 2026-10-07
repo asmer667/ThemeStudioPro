@@ -25,6 +25,14 @@ import com.futo.themestudiopro.data.ThemeState
 import com.futo.themestudiopro.ui.components.KeyboardPreview
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.Surface
+import com.futo.themestudiopro.ui.sheets.AppearanceSheet
+import com.futo.themestudiopro.ui.sheets.ColorsSheet
+import com.futo.themestudiopro.ui.sheets.ShapesSheet
+import com.futo.themestudiopro.ui.sheets.FontsSheet
+import com.futo.themestudiopro.ui.sheets.KeyImagesSheet
+import com.futo.themestudiopro.ui.sheets.BackgroundSheet
+import com.futo.themestudiopro.ui.sheets.TextSheet
+import com.futo.themestudiopro.ui.sheets.ExportSheet
 
 /**
  * التبويبات الرئيسية الثمانية.
@@ -236,117 +244,15 @@ private fun PillTabRow(
 @Composable
 private fun TabContent(tab: EditorTab) {
     when (tab) {
-        EditorTab.THEME -> ThemeTabContent()
-        EditorTab.COLORS -> ColorsTabContent()
-        EditorTab.SHAPES -> ShapesTabContent()
-        EditorTab.FONTS -> FontsTabContent()
-        EditorTab.BUTTONS -> ButtonsTabContent()
-        EditorTab.BACKGROUND -> BackgroundTabContent()
-        EditorTab.TEXT -> TextTabContent()
-        EditorTab.EXPORT -> ExportTabContent()
+        EditorTab.THEME -> AppearanceSheet()
+        EditorTab.COLORS -> ColorsSheet()
+        EditorTab.SHAPES -> ShapesSheet()
+        EditorTab.FONTS -> FontsSheet()
+        EditorTab.BUTTONS -> KeyImagesSheet()
+        EditorTab.BACKGROUND -> BackgroundSheet()
+        EditorTab.TEXT -> TextSheet()
+        EditorTab.EXPORT -> ExportSheet()
     }
 }
 
-@Composable
-private fun ThemeTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("🎨 المظهر", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(8.dp))
-        Text("اختر اسم الثيم والكتابة والمؤلف من الأعلى.", style = MaterialTheme.typography.bodySmall)
-        Spacer(Modifier.height(8.dp))
-        val theme = ThemeState.theme
-        OutlinedTextField(
-            value = theme.name,
-            onValueChange = { ThemeState.update("name", it) },
-            label = { Text("اسم الثيم") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(6.dp))
-        OutlinedTextField(
-            value = theme.author,
-            onValueChange = { ThemeState.update("author", it) },
-            label = { Text("المؤلف") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
 
-@Composable
-private fun ColorsTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("🎨 الألوان", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text("اختر من 700 لون جاهز أو خصّص كل لون.", style = MaterialTheme.typography.bodySmall)
-        Spacer(Modifier.height(8.dp))
-        Text("(التفاصيل في Sheet الألوان)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-@Composable
-private fun ShapesTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("🔷 الأشكال", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text("${com.futo.themestudiopro.data.ShapesGenerator.shapes.size} شكل هندسي متاح", style = MaterialTheme.typography.bodySmall)
-        Spacer(Modifier.height(8.dp))
-        Text("اختر شكلًا من الشبكة.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-@Composable
-private fun FontsTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("🔤 الخطوط", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text("20 خط عربي + 20 خط إنجليزي من Google Fonts.", style = MaterialTheme.typography.bodySmall)
-        Spacer(Modifier.height(8.dp))
-        val theme = ThemeState.theme
-        Text(
-            "الخط الحالي: ${theme.fontName ?: theme.arabicFontName ?: "لا يوجد"}",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-        )
-    }
-}
-
-@Composable
-private fun ButtonsTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("🖼️ صور الأزرار", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text("خصّص صورة لكل زر في الكيبورد.", style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-@Composable
-private fun BackgroundTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("🌄 الخلفية", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text("اختر صورة خلفية للكيبورد.", style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-@Composable
-private fun TextTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("📝 النص", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text("تحكم بحجم ووزن النص.", style = MaterialTheme.typography.bodySmall)
-        Spacer(Modifier.height(8.dp))
-        val theme = ThemeState.theme
-        Text("حجم النص: ${"%.2f".format(theme.scaleText)}×", style = MaterialTheme.typography.labelSmall)
-        Text("وزن النص: ${theme.weightText.toInt()}", style = MaterialTheme.typography.labelSmall)
-    }
-}
-
-@Composable
-private fun ExportTabContent() {
-    Column(Modifier.fillMaxSize().padding(12.dp)) {
-        Text("📤 التصدير", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text("صدّر الثيم كـ ZIP جاهز لـ FUTO Keyboard.", style = MaterialTheme.typography.bodySmall)
-    }
-}

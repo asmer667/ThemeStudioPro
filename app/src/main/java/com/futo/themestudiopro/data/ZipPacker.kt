@@ -1,7 +1,5 @@
 package com.futo.themestudiopro.data
 
-import android.content.Context
-import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
@@ -15,11 +13,10 @@ import java.util.zip.ZipOutputStream
  *
  * البنية الناتجة:
  *   theme.txt                  ← الإعدادات
- *   <font>.ttf                 ← الخط
+ *   <font>.ttf                 ← الخطوط (عربي + إنجليزي)
  *   background.png             ← صورة الخلفية
- *   Shapes-*.png               ← الأشكال
- *   Key-*.png                  ← صور الأزرار
- *   Icon-*.png                 ← الأيقونات
+ *   Shapes/button.png          ← شكل الزر الرئيسي
+ *   Key-<id>.png               ← صور الأزرار المخصّصة
  *   FUTOKeyboardTheme_Version  ← ملف الإصدار
  */
 object ZipPacker {
@@ -30,34 +27,30 @@ object ZipPacker {
 
     /**
      * يحزم الثيم في ملف ZIP.
-     *
-     * @param context سياق التطبيق
-     * @param theme بيانات الثيم
-     * @param fontBytes بايتات الخط (أو null)
-     * @param backgroundBytes بايتات صورة الخلفية (أو null)
-     * @param outputFile الملف الناتج
      */
     fun pack(
-        context: Context,
         theme: ThemeData,
-        fontBytes: ByteArray?,
-        backgroundBytes: ByteArray?,
+        fontFiles: Map<String, ByteArray> = emptyMap(),
+        backgroundBytes: ByteArray? = null,
+        keyImageFiles: Map<String, ByteArray> = emptyMap(),
+        shapeBytes: ByteArray? = null,
         outputFile: File,
     ): File {
         outputFile.parentFile?.mkdirs()
 
-        // ═══ توليد theme.txt ═══
-        val fontSet = if (fontBytes != null) {
-            val name = theme.fontName ?: theme.arabicFontName ?: "CustomFont.ttf"
-            setOf(if (name.endsWith(".ttf") || name.endsWith(".otf")) name else "$name.ttf")
-        } else emptySet()
+        // أسماء الخطوط للـ theme.txt
+        val fontNames = fontFiles.keys.toSet()
 
-        val shapesList = buildShapeAssets(theme)
+        // أسماء الأشكال والصور للـ theme.txt
+        val shapesList = mutableSetOf<String>()
+        if (shapeBytes != null) shapesList.add("Shapes/button.png")
+        keyImageFiles.keys.forEach { key -> shapesList.add("Shapes/$key.png") }
+
         val themeTxt = TomlGenerator.generate(
             theme = theme,
-            fontsList = fontSet,
+            fontsList = fontNames,
             hasBackground = backgroundBytes != null,
-            shapesList = shapesList.keys,
+            shapesList = shapesList,
         )
 
         // ═══ فتح ZIP ═══
@@ -66,11 +59,13 @@ object ZipPacker {
 
             // ملف الإصدار
             zos.putNextEntry(ZipEntry(VERSION_FILE))
-            zos.write(ByteBuffer.allocate(9).apply {
-                order(ByteOrder.LITTLE_ENDIAN)
-                put(CURRENT_VERSION)
-                putLong(Date().time)
-            }.array())
+            zos.write(
+                ByteBuffer.allocate(9).apply {
+                    order(ByteOrder.LITTLE_ENDIAN)
+                    put(CURRENT_VERSION)
+                    putLong(Date().time)
+                }.array()
+            )
             zos.closeEntry()
 
             // theme.txt
@@ -78,64 +73,35 @@ object ZipPacker {
             zos.write(themeTxt.toByteArray(Charsets.UTF_8))
             zos.closeEntry()
 
-            // الخط
-            if (fontBytes != null) {
-                val name = theme.fontName ?: theme.arabicFontName ?: "CustomFont.ttf"
-                val actualName = if (name.endsWith(".ttf") || name.endsWith(".otf")) name else "$name.ttf"
-                zos.putNextEntry(ZipEntry(actualName))
-                zos.write(fontBytes)
+            // الخطوط
+            fontFiles.forEach { (name, bytes) ->
+                zos.putNextEntry(ZipEntry(name))
+                zos.write(bytes)
                 zos.closeEntry()
             }
 
-            // صورة الخلفية
+            // الخلفية
             if (backgroundBytes != null) {
                 zos.putNextEntry(ZipEntry("background.png"))
                 zos.write(backgroundBytes)
                 zos.closeEntry()
             }
 
-            // الأشكال
-            shapesList.forEach { (name, bytes) ->
-                zos.putNextEntry(ZipEntry(name))
+            // الشكل الرئيسي
+            if (shapeBytes != null) {
+                zos.putNextEntry(ZipEntry("Shapes/button.png"))
+                zos.write(shapeBytes)
+                zos.closeEntry()
+            }
+
+            // صور الأزرار الفردية
+            keyImageFiles.forEach { (key, bytes) ->
+                zos.putNextEntry(ZipEntry("Shapes/$key.png"))
                 zos.write(bytes)
                 zos.closeEntry()
             }
         }
 
         return outputFile
-    }
-
-    /**
-     * توليد صور الأشكال المُختارة في الثيم.
-     */
-    private fun buildShapeAssets(theme: ThemeData): Map<String, ByteArray> {
-        val result = mutableMapOf<String, ByteArray>()
-        val colorInt = try {
-            com.futo.themestudiopro.utils.ColorUtils.parseColor(theme.keyboardContainer)
-        } catch (e: Exception) {
-            0xFF6750A4.toInt()
-        }
-
-        // شكل عام
-        theme.shapeId?.let { shapeId ->
-            val bytes = try {
-                ShapesGenerator.generatePNG(
-                    shapeId = shapeId,
-                    fillColor = colorInt,
-                    rotation = theme.shapeRotation,
-                    sharpness = theme.shapeSharpness,
-                    tilt = theme.shapeTilt,
-                    size = 256,
-                    is3D = shapeId.startsWith("3d_"),
-                )
-            } catch (e: Exception) {
-                null
-            }
-            if (bytes != null) {
-                result["Shapes/button.png"] = bytes
-            }
-        }
-
-        return result
     }
 }
